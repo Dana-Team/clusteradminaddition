@@ -1,18 +1,19 @@
 package controllers
 
 import (
-	. "clusteradminaddition/testUtils"
 	"context"
+	. "permission-granter-controller/testUtils"
+	"reflect"
+	"testing"
+
 	"github.com/go-logr/logr"
 	"github.com/openshift/hypershift/api/v1alpha1"
 	v1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/types"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"testing"
 )
 
 func TestAppendAnnotations(t *testing.T) {

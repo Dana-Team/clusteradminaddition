@@ -17,8 +17,9 @@ limitations under the License.
 package controllers
 
 import (
-	utills "clusteradminaddition/pkg/utils"
 	"context"
+	utills "permission-granter-controller/pkg/utils"
+
 	"github.com/go-logr/logr"
 	"github.com/openshift/hypershift/api/v1alpha1"
 	rbacv1 "k8s.io/api/rbac/v1"

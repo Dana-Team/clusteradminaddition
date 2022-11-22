@@ -1,8 +1,8 @@
 domain: dana.io
 layout:
 - go.kubebuilder.io/v3
-projectName: clusteradminaddition
-repo: clusteradminaddition
+projectName: permission-granter-controller
+repo: permission-granter-controller
 resources:
 - controller: true
   domain: dana.io

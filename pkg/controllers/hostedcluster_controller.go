@@ -25,9 +25,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	v1api "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -84,12 +82,7 @@ func (r *HostedClusterReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *HostedClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	hostedCluster := &unstructured.Unstructured{}
-	hostedCluster.SetGroupVersionKind(schema.GroupVersionKind{
-		Group:   "hypershift.openshift.io",
-		Version: "v1alpha1",
-		Kind:    "HostedCluster",
-	})
+	hostedCluster := &v1alpha1.HostedCluster{}
 	return ctrl.NewControllerManagedBy(mgr).
 		For(hostedCluster).
 		WithOptions(controller.Options{

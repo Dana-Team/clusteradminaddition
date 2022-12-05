@@ -77,7 +77,9 @@ func (r *HostedClusterReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 	hostedClient := r.getHostedClusterClient(hostedClusterObject.GetName())
 	if val, ok := hostedClusterObject.GetAnnotations()[requesterAnnotation]; ok {
-		r.addClusterAdminRoleBinding(hostedClient, val, hostedClusterObject, ctx)
+		if err := r.addClusterAdminRoleBinding(hostedClient, val, hostedClusterObject, ctx); err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 	return ctrl.Result{}, nil
 }
@@ -151,13 +153,13 @@ func (r *HostedClusterReconciler) getHostedClusterClient(hostedclustername strin
 	return hostedClusterClient
 }
 
-func (r *HostedClusterReconciler) addClusterAdminRoleBinding(hostedClient client.Client, username string, hostedClusterObject *v1alpha1.HostedCluster, ctx context.Context) {
+func (r *HostedClusterReconciler) addClusterAdminRoleBinding(hostedClient client.Client, username string, hostedClusterObject *v1alpha1.HostedCluster, ctx context.Context) error {
 	clusterRoleBinding := composeClusterAdminCRB(username)
-	err := hostedClient.Create(ctx, &clusterRoleBinding)
-	if err != nil {
+	if err := hostedClient.Create(ctx, &clusterRoleBinding); err != nil {
 		r.Log.Error(err, "could not add cluster admin to the user")
-	} else {
-		r.addClusterAdminAnnotation(username, hostedClusterObject, ctx)
-		r.Log.Info("user received cluster-admin role", "username", username)
+		return err
 	}
+	r.addClusterAdminAnnotation(username, hostedClusterObject, ctx)
+	r.Log.Info("user received cluster-admin role", "username", username)
+	return nil
 }

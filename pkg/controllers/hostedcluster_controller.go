@@ -18,8 +18,10 @@ package controllers
 
 import (
 	"context"
+	v1 "github.com/openshift/api/user/v1"
 	utills "permission-granter-controller/pkg/utils"
 
+	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
 	"github.com/go-logr/logr"
 	"github.com/openshift/hypershift/api/v1alpha1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -77,7 +79,9 @@ func (r *HostedClusterReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 	hostedClient := r.getHostedClusterClient(hostedClusterObject.GetName())
 	if val, ok := hostedClusterObject.GetAnnotations()[requesterAnnotation]; ok {
-		r.addClusterAdminRoleBinding(hostedClient, val, hostedClusterObject, ctx)
+		if err := r.addCustomClusterAdminGroup(hostedClient, val, ctx); err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 	return ctrl.Result{}, nil
 }
@@ -118,6 +122,46 @@ func composeClusterAdminCRB(username string) rbacv1.ClusterRoleBinding {
 	}
 }
 
+// composeCustomClusterAdminGroup function returns a group for the custom cluster admins on the cluster,
+// The cluster requester will be added to this group
+func composeCustomClusterAdminGroup(requester string) v1.Group {
+	return v1.Group{
+		ObjectMeta: v1api.ObjectMeta{
+			Name: "custom-cluster-admin",
+		},
+		Users: []string{requester},
+	}
+}
+
+// composeCustomAdminRBACDefinition function returns a RBACDefinition giving the custom-cluster-admin group the required permissions
+// we are waiting for OCP and to give us required permissions list, meanwhile this is just an example
+func composeCustomAdminRBACDefinition() rbacmanagerv1beta1.RBACDefinition {
+	return rbacmanagerv1beta1.RBACDefinition{
+		ObjectMeta: v1api.ObjectMeta{
+			Name: "custom-cluster-admin-access",
+		},
+		RBACBindings: []rbacmanagerv1beta1.RBACBinding{
+			{
+				Name: "custom-cluster-admin",
+				Subjects: []rbacmanagerv1beta1.Subject{
+					{
+						Subject: rbacv1.Subject{
+							Kind: "Group",
+							Name: "custom-cluster-admin",
+						},
+					},
+				},
+				RoleBindings: []rbacmanagerv1beta1.RoleBinding{
+					{
+						Namespace:   "customAdminNamespace",
+						ClusterRole: "edit",
+					},
+				},
+			},
+		},
+	}
+}
+
 func AppendAnnotations(hostedCluster *v1alpha1.HostedCluster, annotationsToAppend map[string]string) {
 	newAnnotations := hostedCluster.GetAnnotations()
 	if len(newAnnotations) == 0 {
@@ -149,6 +193,23 @@ func (r *HostedClusterReconciler) getHostedClusterClient(hostedclustername strin
 		r.Log.Error(err, "unable to get hosted cluster client")
 	}
 	return hostedClusterClient
+}
+
+// addCustomClusterAdminGroup gets HostedCluster client, HostedCluster requester username, and context
+// The function creates custom cluster admin group with required permissions at the HostedCluster, the cluster requester is added to this group.
+func (r *HostedClusterReconciler) addCustomClusterAdminGroup(hostedClient client.Client, username string, ctx context.Context) error {
+	customClusterAdminGroup := composeCustomClusterAdminGroup(username)
+	if err := hostedClient.Create(ctx, &customClusterAdminGroup); err != nil {
+		r.Log.Error(err, "could not create custom cluster admin group at the hosted cluster")
+		return err
+	}
+	rbacDefinition := composeCustomAdminRBACDefinition()
+	if err := hostedClient.Create(ctx, &rbacDefinition); err != nil {
+		r.Log.Error(err, "could not create rbac definition at the hosted cluster")
+		return err
+	}
+	r.Log.Info("custom cluster admin group created with required permissions and user was added to the group", "username", username)
+	return nil
 }
 
 func (r *HostedClusterReconciler) addClusterAdminRoleBinding(hostedClient client.Client, username string, hostedClusterObject *v1alpha1.HostedCluster, ctx context.Context) {

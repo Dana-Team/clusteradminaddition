@@ -14,6 +14,9 @@ var (
 	KubeConfigSecretKey  = "kubeconfig"
 )
 
+//GetHostedKubeConfig get infra cluster client and HostedCluster name
+//The function gets the secret contains the kubeconfig of the HostedCluster from the
+//infra cluster and returns it
 func GetHostedKubeConfig(c client.Client, hostedclustername string) ([]byte, error) {
 	kubeconfig := &corev1.Secret{}
 	secretNamespacedName := types.NamespacedName{
@@ -26,6 +29,8 @@ func GetHostedKubeConfig(c client.Client, hostedclustername string) ([]byte, err
 	return kubeconfig.Data[KubeConfigSecretKey], nil
 }
 
+//GetHostedKubeRestConfig get infra cluster client and HostedCluster name and creates
+//clientConfig from the HostedCluster kubeconfig and returns it
 func GetHostedKubeRestConfig(c client.Client, hostedclustername string) (*rest.Config, error) {
 	config, err := GetHostedKubeConfig(c, hostedclustername)
 	if err != nil {

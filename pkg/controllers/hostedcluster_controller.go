@@ -104,6 +104,8 @@ func (r *HostedClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+//composeClusterAdminCRB the function gets username
+//the function returns a ClusterRoleBinding giving the username the cluster-admin role
 func composeClusterAdminCRB(username string) rbacv1.ClusterRoleBinding {
 	return rbacv1.ClusterRoleBinding{
 		ObjectMeta: v1api.ObjectMeta{
@@ -118,6 +120,8 @@ func composeClusterAdminCRB(username string) rbacv1.ClusterRoleBinding {
 	}
 }
 
+//AppendAnnotations gets HostedCluster and Annotations to append
+//The function appends the annotations to the HostedCluster
 func AppendAnnotations(hostedCluster *v1alpha1.HostedCluster, annotationsToAppend map[string]string) {
 	newAnnotations := hostedCluster.GetAnnotations()
 	if len(newAnnotations) == 0 {
@@ -129,6 +133,8 @@ func AppendAnnotations(hostedCluster *v1alpha1.HostedCluster, annotationsToAppen
 	hostedCluster.SetAnnotations(newAnnotations)
 }
 
+//addClusterAdminAnnotation gets username of HostedCluster requester, HostedCluster and context
+//The functions adds cluster-admin annotation with the username to the HostedCluster and updates it
 func (r *HostedClusterReconciler) addClusterAdminAnnotation(username string, hostedClusterObject *v1alpha1.HostedCluster, ctx context.Context) {
 	annotations := make(map[string]string)
 	annotations[clusterAdminAnnotation] = username
@@ -138,12 +144,14 @@ func (r *HostedClusterReconciler) addClusterAdminAnnotation(username string, hos
 	}
 }
 
+//getHostedClusterClient gets HostedCluster name and returns its client
 func (r *HostedClusterReconciler) getHostedClusterClient(hostedclustername string) client.Client {
+	//gets the HostedCluster client config
 	hostedConfig, err := utills.GetHostedKubeRestConfig(r.Client, hostedclustername)
 	if err != nil {
 		r.Log.Error(err, "unable to get hosted cluster client")
 	}
-
+	//creates client from the client config
 	hostedClusterClient, err := client.New(hostedConfig, client.Options{})
 	if err != nil {
 		r.Log.Error(err, "unable to get hosted cluster client")
@@ -151,6 +159,8 @@ func (r *HostedClusterReconciler) getHostedClusterClient(hostedclustername strin
 	return hostedClusterClient
 }
 
+//addClusterAdminRoleBinding gets HostedCluster client, HostedCluster requester username, the HostedCluster itself and context
+//The function adds cluster-admin rolebinding to the username on the HostedCluster
 func (r *HostedClusterReconciler) addClusterAdminRoleBinding(hostedClient client.Client, username string, hostedClusterObject *v1alpha1.HostedCluster, ctx context.Context) {
 	clusterRoleBinding := composeClusterAdminCRB(username)
 	err := hostedClient.Create(ctx, &clusterRoleBinding)

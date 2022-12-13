@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"context"
-	. "permission-granter-controller/testUtils"
 	"reflect"
 	"testing"
 
+	. "github.com/dana-team/permission-granter-controller/testUtils"
 	"github.com/go-logr/logr"
 	"github.com/openshift/hypershift/api/v1alpha1"
 	v1 "k8s.io/api/rbac/v1"
@@ -51,76 +51,74 @@ func TestAppendAnnotations(t *testing.T) {
 	}
 }
 
+//	func TestHostedClusterReconciler_Reconcile(t *testing.T) {
+//		type fields struct {
+//			Client client.Client
+//			Scheme *runtime.Scheme
+//			Log    logr.Logger
+//		}
+//		type args struct {
+//			ctx context.Context
+//			req controllerruntime.Request
+//		}
+//		tests := []struct {
+//			name    string
+//			fields  fields
+//			args    args
+//			want    controllerruntime.Result
+//			wantErr bool
+//		}{
+//			// TODO: Add test cases.
+//		}
+//		for _, tt := range tests {
+//			t.Run(tt.name, func(t *testing.T) {
+//				r := &HostedClusterReconciler{
+//					Client: tt.fields.Client,
+//					Scheme: tt.fields.Scheme,
+//					Log:    tt.fields.Log,
+//				}
+//				got, err := r.Reconcile(tt.args.ctx, tt.args.req)
+//				if (err != nil) != tt.wantErr {
+//					t.Errorf("Reconcile() error = %v, wantErr %v", err, tt.wantErr)
+//					return
+//				}
+//				if !reflect.DeepEqual(got, tt.want) {
+//					t.Errorf("Reconcile() got = %v, want %v", got, tt.want)
+//				}
+//			})
+//		}
+//	}
 //
-//func TestHostedClusterReconciler_Reconcile(t *testing.T) {
-//	type fields struct {
-//		Client client.Client
-//		Scheme *runtime.Scheme
-//		Log    logr.Logger
+//	func TestHostedClusterReconciler_SetupWithManager(t *testing.T) {
+//		type fields struct {
+//			Client client.Client
+//			Scheme *runtime.Scheme
+//			Log    logr.Logger
+//		}
+//		type args struct {
+//			mgr controllerruntime.Manager
+//		}
+//		tests := []struct {
+//			name    string
+//			fields  fields
+//			args    args
+//			wantErr bool
+//		}{
+//			// TODO: Add test cases.
+//		}
+//		for _, tt := range tests {
+//			t.Run(tt.name, func(t *testing.T) {
+//				r := &HostedClusterReconciler{
+//					Client: tt.fields.Client,
+//					Scheme: tt.fields.Scheme,
+//					Log:    tt.fields.Log,
+//				}
+//				if err := r.SetupWithManager(tt.args.mgr); (err != nil) != tt.wantErr {
+//					t.Errorf("SetupWithManager() error = %v, wantErr %v", err, tt.wantErr)
+//				}
+//			})
+//		}
 //	}
-//	type args struct {
-//		ctx context.Context
-//		req controllerruntime.Request
-//	}
-//	tests := []struct {
-//		name    string
-//		fields  fields
-//		args    args
-//		want    controllerruntime.Result
-//		wantErr bool
-//	}{
-//		// TODO: Add test cases.
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			r := &HostedClusterReconciler{
-//				Client: tt.fields.Client,
-//				Scheme: tt.fields.Scheme,
-//				Log:    tt.fields.Log,
-//			}
-//			got, err := r.Reconcile(tt.args.ctx, tt.args.req)
-//			if (err != nil) != tt.wantErr {
-//				t.Errorf("Reconcile() error = %v, wantErr %v", err, tt.wantErr)
-//				return
-//			}
-//			if !reflect.DeepEqual(got, tt.want) {
-//				t.Errorf("Reconcile() got = %v, want %v", got, tt.want)
-//			}
-//		})
-//	}
-//}
-//
-//func TestHostedClusterReconciler_SetupWithManager(t *testing.T) {
-//	type fields struct {
-//		Client client.Client
-//		Scheme *runtime.Scheme
-//		Log    logr.Logger
-//	}
-//	type args struct {
-//		mgr controllerruntime.Manager
-//	}
-//	tests := []struct {
-//		name    string
-//		fields  fields
-//		args    args
-//		wantErr bool
-//	}{
-//		// TODO: Add test cases.
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			r := &HostedClusterReconciler{
-//				Client: tt.fields.Client,
-//				Scheme: tt.fields.Scheme,
-//				Log:    tt.fields.Log,
-//			}
-//			if err := r.SetupWithManager(tt.args.mgr); (err != nil) != tt.wantErr {
-//				t.Errorf("SetupWithManager() error = %v, wantErr %v", err, tt.wantErr)
-//			}
-//		})
-//	}
-//}
-//
 func TestHostedClusterReconciler_addClusterAdminAnnotation(t *testing.T) {
 	type fields struct {
 		Client client.Client

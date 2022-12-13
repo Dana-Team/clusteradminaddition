@@ -18,6 +18,10 @@ package main
 
 import (
 	"flag"
+	"github.com/dana-team/permission-granter-controller/pkg/controllers"
+	"github.com/go-logr/zapr"
+	"go.elastic.co/ecszap"
+	"go.uber.org/zap"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -29,11 +33,6 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
-//	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	"github.com/go-logr/zapr"
-	"go.elastic.co/ecszap"
-	"go.uber.org/zap"
-	"permission-granter-controller/pkg/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -63,18 +62,31 @@ func main() {
 	core := ecszap.NewCore(encoderConfig, os.Stdout, zap.DebugLevel)
 	logger := zap.New(core, zap.AddCaller())
 	ctrl.SetLogger(zapr.NewLogger(logger))
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "cd4b3274.dana.io",
+		LeaderElectionID:       "59d79847.dana.io",
+		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
+		// when the Manager ends. This requires the binary to immediately end when the
+		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
+		// speeds up voluntary leader transitions as the new leader don't have to wait
+		// LeaseDuration time first.
+		//
+		// In the default scaffold provided, the program ends immediately after
+		// the manager stops, so would be fine to enable this option. However,
+		// if you are doing or is intended to do any operation such as perform cleanups
+		// after the manager stops then its usage might be unsafe.
+		// LeaderElectionReleaseOnCancel: true,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
+
 	if err = (&controllers.HostedClusterReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),

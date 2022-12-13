@@ -18,11 +18,10 @@ package controllers
 
 import (
 	"context"
-	v1 "github.com/openshift/api/user/v1"
-	utills "permission-granter-controller/pkg/utils"
-
+	utils "github.com/dana-team/permission-granter-controller/pkg/utils"
 	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
 	"github.com/go-logr/logr"
+	v1 "github.com/openshift/api/user/v1"
 	"github.com/openshift/hypershift/api/v1alpha1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -94,8 +93,8 @@ func (r *HostedClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		}).Complete(r)
 }
 
-//composeClusterAdminCRB the function gets username
-//the function returns a ClusterRoleBinding giving the username the cluster-admin role
+// composeClusterAdminCRB the function gets username
+// the function returns a ClusterRoleBinding giving the username the cluster-admin role
 func composeClusterAdminCRB(username string) rbacv1.ClusterRoleBinding {
 	return rbacv1.ClusterRoleBinding{
 		ObjectMeta: v1api.ObjectMeta{
@@ -150,8 +149,8 @@ func composeCustomAdminRBACDefinition() rbacmanagerv1beta1.RBACDefinition {
 	}
 }
 
-//AppendAnnotations gets HostedCluster and Annotations to append
-//The function appends the annotations to the HostedCluster
+// AppendAnnotations gets HostedCluster and Annotations to append
+// The function appends the annotations to the HostedCluster
 func AppendAnnotations(hostedCluster *v1alpha1.HostedCluster, annotationsToAppend map[string]string) {
 	newAnnotations := hostedCluster.GetAnnotations()
 	if len(newAnnotations) == 0 {
@@ -163,8 +162,8 @@ func AppendAnnotations(hostedCluster *v1alpha1.HostedCluster, annotationsToAppen
 	hostedCluster.SetAnnotations(newAnnotations)
 }
 
-//addClusterAdminAnnotation gets username of HostedCluster requester, HostedCluster and context
-//The functions adds cluster-admin annotation with the username to the HostedCluster and updates it
+// addClusterAdminAnnotation gets username of HostedCluster requester, HostedCluster and context
+// The functions adds cluster-admin annotation with the username to the HostedCluster and updates it
 func (r *HostedClusterReconciler) addClusterAdminAnnotation(username string, hostedClusterObject *v1alpha1.HostedCluster, ctx context.Context) {
 	annotations := make(map[string]string)
 	annotations[clusterAdminAnnotation] = username
@@ -174,10 +173,10 @@ func (r *HostedClusterReconciler) addClusterAdminAnnotation(username string, hos
 	}
 }
 
-//getHostedClusterClient gets HostedCluster name and returns its client
+// getHostedClusterClient gets HostedCluster name and returns its client
 func (r *HostedClusterReconciler) getHostedClusterClient(hostedclustername string) client.Client {
 	//gets the HostedCluster client config
-	hostedConfig, err := utills.GetHostedKubeRestConfig(r.Client, hostedclustername)
+	hostedConfig, err := utils.GetHostedKubeRestConfig(r.Client, hostedclustername)
 	if err != nil {
 		r.Log.Error(err, "unable to get hosted cluster client")
 	}
@@ -206,8 +205,8 @@ func (r *HostedClusterReconciler) addCustomClusterAdminGroup(hostedClient client
 	return nil
 }
 
-//addClusterAdminRoleBinding gets HostedCluster client, HostedCluster requester username, the HostedCluster itself and context
-//The function adds cluster-admin rolebinding to the username on the HostedCluster
+// addClusterAdminRoleBinding gets HostedCluster client, HostedCluster requester username, the HostedCluster itself and context
+// The function adds cluster-admin rolebinding to the username on the HostedCluster
 func (r *HostedClusterReconciler) addClusterAdminRoleBinding(hostedClient client.Client, username string, hostedClusterObject *v1alpha1.HostedCluster, ctx context.Context) {
 	clusterRoleBinding := composeClusterAdminCRB(username)
 	err := hostedClient.Create(ctx, &clusterRoleBinding)

@@ -94,14 +94,7 @@ func (r *HostedClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(hostedCluster).
 		WithOptions(controller.Options{
 			MaxConcurrentReconciles: 10,
-		}).WithEventFilter(HostedClusterPredicate{predicate.NewPredicateFuncs(func(object client.Object) bool {
-		objAnnotaions := object.GetAnnotations()
-		if _, ok := objAnnotaions[clusterAdminAnnotation]; ok {
-			return false
-		}
-		return true
-	})}).
-		Complete(r)
+		}).Complete(r)
 }
 
 //composeClusterAdminCRB the function gets username

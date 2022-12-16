@@ -1,17 +1,15 @@
 domain: dana.io
 layout:
 - go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
 projectName: permission-granter-controller
-repo: permission-granter-controller
+repo: github.com/dana-team/permission-granter-controller
 resources:
 - controller: true
   domain: dana.io
   group: hypershift.openshift.io
   kind: HostedCluster
-  version: v1alpha1
-- controller: true
-  group: core
-  kind: Pod
-  path: k8s.io/api/core/v1
-  version: v1
+  version: v1beta1
 version: "3"
